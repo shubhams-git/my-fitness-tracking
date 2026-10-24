@@ -1,0 +1,23 @@
+{
+  "name": "stride-intelligence",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node --watch src/server.mjs",
+    "design": "node design-review/server.mjs",
+    "import:local": "node scripts/import-local.mjs",
+    "test": "node --test test/*.test.mjs design-review/evidence.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@garmin/fitsdk": "21.218.0",
+    "@js-temporal/polyfill": "0.5.1",
+    "csv-parse": "7.0.3",
+    "fast-xml-parser": "5.11.2",
+    "yauzl": "3.4.0"
+  }
+}

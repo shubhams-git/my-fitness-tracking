@@ -1,0 +1,18 @@
+# NEVER commit raw personal location, health, sleep, photos or source exports
+private-inputs/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+node_modules/
+.next/
+dist/
+build/
+coverage/
+.cache/
+.vercel/
+*.log
+.DS_Store
+Thumbs.db
