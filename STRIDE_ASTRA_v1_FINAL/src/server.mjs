@@ -17,7 +17,7 @@ export function appState(store,security){const activities=live(store.list('activ
   const insights=buildInsights({activities,weights,sleeps,feedback,plans,settings,seen:store.list('insight-seen')});
   return {today:today(),activities:activities.map(({streams,...a})=>({...a,streamCount:streams?.length||0})),weights,sleeps,feedback,plans,settings,insights,sleepSummary:sleepSummary(sleeps,today(),7),imports:store.list('import').sort((a,b)=>b.at.localeCompare(a.at)),merges:store.list('merge').map(({before,...m})=>m),garmin:{configured:!!security.secret('garmin'),keyExpires:security.secret('garmin')?.expires||null,...store.get('connector','garmin')},version:'0.2.0'};
 }
-export function createApp({dataDir=process.env.STRIDE_DATA_DIR||join(root,'.stride-data'),port=Number(process.env.PORT)||4318,origin=process.env.STRIDE_ORIGIN,clock=()=>Date.now()}={}){
+export function createApp({dataDir=process.env.STRIDE_DATA_DIR||join(root,'.stride-data'),port=Number(process.env.PORT)||4318,origin=process.env.STRIDE_ORIGIN||process.env.RENDER_EXTERNAL_URL,clock=()=>Date.now()}={}){
   requireThat(!origin||/^https:\/\//.test(origin),'STRIDE_ORIGIN must use HTTPS.');
   const store=new Store(join(dataDir,'stride.sqlite')),security=new Security(store,dataDir),pending=new Map();let syncing=false;
   const garmin=new GarminClient({getSecret:n=>security.secret(n),setSecret:(n,v)=>security.secret(n,v)});
@@ -77,4 +77,4 @@ export function createApp({dataDir=process.env.STRIDE_DATA_DIR||join(root,'.stri
   server.on('close',()=>{clearInterval(cleanup);store.close();});
   return{server,store,security,dataDir,port};
 }
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){const app=createApp();app.security.checkpoint('startup');app.server.listen(app.port,'127.0.0.1',()=>{console.log(`STRIDE Intelligence: http://127.0.0.1:${app.port}`);console.log('Unlock with the owner key in .stride-data/owner-key.txt. No credentials are printed.');});for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>app.server.close(()=>process.exit(0)));}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){const app=createApp();const host=process.env.HOST||'127.0.0.1';app.security.checkpoint('startup');app.server.listen(app.port,host,()=>{console.log(`STRIDE Intelligence listening on ${host}:${app.port}`);console.log('Unlock with owner-key.txt inside the configured STRIDE_DATA_DIR. No credentials are printed.');});for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>app.server.close(()=>process.exit(0)));}
